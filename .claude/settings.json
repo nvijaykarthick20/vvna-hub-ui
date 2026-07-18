@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pkill -f \"vite --port 5183\")",
+      "Bash(curl -sf \"http://localhost:5173/src/features/arithmetic/ArithmeticLearnPage.tsx\" -o /tmp/learn_transformed.js -w \"HTTP %{http_code}\\\\n\")",
+      "Bash(curl -sf \"http://localhost:5173/src/features/arithmetic/multiplicationLesson.ts\" -o /tmp/lesson_transformed.js -w \"HTTP %{http_code}\\\\n\")",
+      "Bash(curl -sf \"http://localhost:5173/src/App.tsx\" -o /tmp/app_transformed.js -w \"HTTP %{http_code}\\\\n\")",
+      "Bash(curl -sf \"http://localhost:5173/\" -w \"HTTP %{http_code}\\\\n\" -o /tmp/index.html)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill //PID 46760 //F)",
+      "PowerShell(npm install)",
+      "PowerShell(npm run typecheck)",
+      "PowerShell(npm run lint)",
+      "PowerShell(Get-Process node -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'eduspark' } | Select-Object ProcessId, Name, CommandLine | Format-List)",
+      "PowerShell(Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'eduspark' -or $_.Name -match 'Code' } | Select-Object ProcessId, Name, CommandLine | Format-List)",
+      "Bash(gh auth *)",
+      "Bash(gh --version)",
+      "PowerShell(gh auth status 2>&1)",
+      "PowerShell(gh --version 2>&1)",
+      "Bash(git init *)",
+      "Bash(git config *)",
+      "Bash(git add *)",
+      "Bash(git rm *)"
+    ]
+  }
+}

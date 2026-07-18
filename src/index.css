@@ -1,0 +1,61 @@
+@import 'tailwindcss';
+
+/*
+  Design tokens for VVNA Hub.
+  Palette is grounded in a Tamil-medium school notebook: chalkboard green,
+  chalk white, marigold/turmeric gold, and kumkum red (the "correction pen"
+  accent). See /.claude/context/CONVENTIONS.md before changing these -
+  components reference these token names directly.
+*/
+@theme {
+  --color-chalkboard: #1f3a2e;
+  --color-chalkboard-deep: #142720;
+  --color-chalk: #f4f1e6;
+  --color-paper: #fbf8ef;
+  --color-paper-line: #cfe0d8;
+  --color-turmeric: #e0a233;
+  --color-turmeric-deep: #b9791c;
+  --color-kumkum: #c1443c;
+  --color-kumkum-deep: #9c332c;
+  --color-ink: #2b2622;
+  --color-ink-soft: #5a5147;
+
+  --font-display: 'Fraunces', ui-serif, Georgia, serif;
+  --font-body: 'Catamaran', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+
+  --shadow-card:
+    0 1px 2px rgba(43, 38, 34, 0.06), 0 12px 24px -8px rgba(31, 58, 46, 0.25);
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+}
+
+/* Respect reduced-motion preferences app-wide. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Printable worksheet: strip decoration, keep it ink-friendly. */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+}
