@@ -1,8 +1,8 @@
 # VVNA Hub
 
-A small home-practice hub. Phase 1 ships **Arithmetic Practice** (pick an
-operation and a number size, get a fresh 50-question worksheet) and a
-placeholder for **Tamil Homework**, coming in a later phase.
+A small home-practice hub. Phase 1 ships **Arithmetic Practice** (pick one
+or more operations and a number size, get a fresh 50-question worksheet) and
+a placeholder for **Tamil Homework**, coming in a later phase.
 
 Built with React 19, TypeScript, Vite 8, and Tailwind CSS v4.
 
@@ -79,13 +79,14 @@ navigates to a screen stating the feature is under development.
 
 **Arithmetic Practice**:
 
-1. Choose an operation - Addition, Subtraction, Multiplication, or
-   Division.
+1. Choose one or more operations - Addition, Subtraction, Multiplication,
+   and/or Division. Picking 2 or more mixes them into one combo worksheet.
 2. Choose a number size - 1 digit (1-9) through 4 digits (1,000-9,999).
-   This size applies to both numbers in each question.
-3. Click **Generate 50 questions**. The app builds 50 questions for that
-   operation/size combination, entirely in your browser (nothing is sent
-   to a server).
+   This size applies to both numbers in every question, regardless of
+   operation.
+3. Click **Generate 50 questions**. The app builds 50 questions split as
+   evenly as possible across the operations you picked and shuffles them,
+   entirely in your browser (nothing is sent to a server).
 4. On the worksheet, you can **Show/Hide answers**, generate a **New set**
    without changing the setup, or **Print worksheet** (the print view hides
    the buttons and header so it prints cleanly on paper).

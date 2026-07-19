@@ -20,16 +20,26 @@ const DIGIT_OPTIONS: { value: DigitCount; sublabel: string }[] = [
  */
 export function ArithmeticSetupPage() {
   const navigate = useNavigate();
-  const [operation, setOperation] = useState<Operation>('addition');
+  const [operations, setOperations] = useState<Operation[]>(['addition']);
   const [digits, setDigits] = useState<DigitCount>(2);
 
   // Multiplication beyond 1 digit gets a worked-example lesson first - see
-  // ArithmeticLearnPage. Every other combination goes straight to the
-  // worksheet, as before.
-  const needsLesson = operation === 'multiplication' && digits > 1;
+  // ArithmeticLearnPage - whether it's the only operation chosen or part of
+  // a combo. Every other combination goes straight to the worksheet.
+  const needsLesson = operations.includes('multiplication') && digits > 1;
+  const isCombo = operations.length > 1;
+
+  function toggleOperation(op: Operation) {
+    setOperations((current) =>
+      current.includes(op)
+        ? current.filter((selected) => selected !== op)
+        : [...current, op],
+    );
+  }
 
   function handleGenerate() {
-    const selection: ArithmeticSelection = { operation, digits };
+    if (operations.length === 0) return;
+    const selection: ArithmeticSelection = { operations, digits };
     navigate(needsLesson ? '/arithmetic/learn' : '/arithmetic/questions', { state: selection });
   }
 
@@ -46,20 +56,24 @@ export function ArithmeticSetupPage() {
           Set up your worksheet
         </h1>
         <p className="mt-3 max-w-2xl text-lg text-ink-soft">
-          Choose an operation and a number size. We&apos;ll generate 50 questions to practice.
+          Choose one or more operations and a number size. We&apos;ll generate 50 questions to
+          practice - pick 2 or more operations to mix them into one worksheet.
         </p>
       </div>
 
       <fieldset className="flex flex-col gap-3">
-        <legend className="font-display text-xl font-semibold text-ink">Operation</legend>
-        <div role="radiogroup" className="flex flex-wrap gap-3">
+        <legend className="font-display text-xl font-semibold text-ink">
+          Operation{isCombo ? ` (${operations.length} selected)` : ''}
+        </legend>
+        <div role="group" className="flex flex-wrap gap-3">
           {OPERATIONS.map((op) => (
             <SelectableCard
               key={op}
+              role="checkbox"
               label={OPERATION_SYMBOLS[op]}
               sublabel={OPERATION_LABELS[op]}
-              selected={operation === op}
-              onSelect={() => setOperation(op)}
+              selected={operations.includes(op)}
+              onSelect={() => toggleOperation(op)}
             />
           ))}
         </div>
@@ -81,7 +95,7 @@ export function ArithmeticSetupPage() {
       </fieldset>
 
       <div>
-        <Button onClick={handleGenerate}>
+        <Button onClick={handleGenerate} disabled={operations.length === 0}>
           {needsLesson ? `Learn ${digits}-digit multiplication` : 'Generate 50 questions'}
         </Button>
       </div>

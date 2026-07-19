@@ -9,17 +9,19 @@ import type { ArithmeticSelection } from './types';
 /**
  * Teaches the long-multiplication algorithm for 2/3/4-digit numbers before
  * handing the learner off to the questions worksheet. Only reachable for
- * `operation: 'multiplication'` with `digits > 1` - ArithmeticSetupPage only
- * routes here for that combination (1-digit multiplication and every other
- * operation go straight to the worksheet). If opened directly with a
- * selection that doesn't match, redirect to `/arithmetic` rather than
- * guessing, same as ArithmeticQuestionsPage.
+ * selections where `operations` includes `'multiplication'` and
+ * `digits > 1` - ArithmeticSetupPage only routes here for that case
+ * (whether multiplication is the only operation chosen or part of a combo;
+ * 1-digit multiplication and combos without multiplication go straight to
+ * the worksheet). If opened directly with a selection that doesn't match,
+ * redirect to `/arithmetic` rather than guessing, same as
+ * ArithmeticQuestionsPage.
  */
 export function ArithmeticLearnPage() {
   const location = useLocation();
   const selection = isArithmeticSelection(location.state) ? location.state : null;
 
-  if (!selection || selection.operation !== 'multiplication' || selection.digits === 1) {
+  if (!selection || !selection.operations.includes('multiplication') || selection.digits === 1) {
     return <Navigate to="/arithmetic" replace />;
   }
 
