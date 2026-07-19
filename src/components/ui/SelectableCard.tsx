@@ -3,17 +3,28 @@ interface SelectableCardProps {
   sublabel?: string;
   selected: boolean;
   onSelect: () => void;
+  /** `radio` (default) for single-select groups (e.g. digit size); `checkbox`
+   * for multi-select groups (e.g. combo operation picker). Controls the
+   * exposed a11y role only - selection state is still fully owned by the
+   * parent either way. */
+  role?: 'radio' | 'checkbox';
 }
 
 /**
  * A single choice in a picker group (operation, digit count, etc). Purely
  * presentational and controlled - the parent owns selection state.
  */
-export function SelectableCard({ label, sublabel, selected, onSelect }: SelectableCardProps) {
+export function SelectableCard({
+  label,
+  sublabel,
+  selected,
+  onSelect,
+  role = 'radio',
+}: SelectableCardProps) {
   return (
     <button
       type="button"
-      role="radio"
+      role={role}
       aria-checked={selected}
       onClick={onSelect}
       className={`flex min-w-[6.5rem] flex-1 flex-col items-center gap-1 rounded-xl border-2 px-4 py-4 text-center transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-turmeric-deep ${

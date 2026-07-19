@@ -24,9 +24,9 @@ export function ArithmeticQuestionsPage() {
 }
 
 function Worksheet({ selection }: { selection: ArithmeticSelection }) {
-  const { operation, digits } = selection;
+  const { operations, digits } = selection;
   const [questions, setQuestions] = useState<ArithmeticQuestion[]>(() =>
-    generateQuestions(operation, digits),
+    generateQuestions(operations, digits),
   );
   const [showAnswers, setShowAnswers] = useState(false);
   const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
@@ -43,7 +43,7 @@ function Worksheet({ selection }: { selection: ArithmeticSelection }) {
   }
 
   function handleNewSet() {
-    setQuestions(generateQuestions(operation, digits));
+    setQuestions(generateQuestions(operations, digits));
     setUserAnswers({});
     setSubmitted(false);
   }
@@ -53,7 +53,8 @@ function Worksheet({ selection }: { selection: ArithmeticSelection }) {
       <div className="no-print flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="font-body text-sm font-semibold uppercase tracking-widest text-turmeric-deep">
-            {OPERATION_LABELS[operation]} &middot; {digits}-digit
+            {operations.map((operation) => OPERATION_LABELS[operation]).join(' + ')} &middot;{' '}
+            {digits}-digit
           </p>
           <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
             50 questions to practice
