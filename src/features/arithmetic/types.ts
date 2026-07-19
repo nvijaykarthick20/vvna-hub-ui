@@ -13,7 +13,9 @@ export interface ArithmeticQuestion {
 }
 
 export interface ArithmeticSelection {
-  operation: Operation;
+  /** Non-empty. A single element is today's single-operation worksheet; 2+
+   * elements is combo mode (questions are mixed across all of them). */
+  operations: Operation[];
   digits: DigitCount;
 }
 
@@ -21,7 +23,8 @@ export interface ArithmeticSelection {
  * ArithmeticQuestionsPage and ArithmeticLearnPage, both of which redirect to
  * `/arithmetic` rather than guessing a default when this fails. */
 export function isArithmeticSelection(value: unknown): value is ArithmeticSelection {
-  return (
-    typeof value === 'object' && value !== null && 'operation' in value && 'digits' in value
-  );
+  if (typeof value !== 'object' || value === null) return false;
+  if (!('operations' in value) || !('digits' in value)) return false;
+  const operations = (value as { operations: unknown }).operations;
+  return Array.isArray(operations) && operations.length > 0;
 }
