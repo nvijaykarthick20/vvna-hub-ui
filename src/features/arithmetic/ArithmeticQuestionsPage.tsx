@@ -28,7 +28,6 @@ function Worksheet({ selection }: { selection: ArithmeticSelection }) {
   const [questions, setQuestions] = useState<ArithmeticQuestion[]>(() =>
     generateQuestions(operations, digits),
   );
-  const [showAnswers, setShowAnswers] = useState(false);
   const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
 
@@ -62,17 +61,12 @@ function Worksheet({ selection }: { selection: ArithmeticSelection }) {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <Button variant="secondary" onClick={() => setShowAnswers((value) => !value)}>
-            {showAnswers ? 'Hide answers' : 'Show answers'}
-          </Button>
           <Button variant="secondary" onClick={handleNewSet}>
             New set
           </Button>
-          {!showAnswers && (
-            <Button onClick={() => setSubmitted(true)} disabled={!allAnswered}>
-              Submit answers
-            </Button>
-          )}
+          <Button onClick={() => setSubmitted(true)} disabled={!allAnswered}>
+            Submit answers
+          </Button>
           <Button onClick={() => window.print()}>Print worksheet</Button>
         </div>
       </div>
@@ -92,19 +86,15 @@ function Worksheet({ selection }: { selection: ArithmeticSelection }) {
                 <span>
                   {question.operand1} {OPERATION_SYMBOLS[question.operation]} {question.operand2} =
                 </span>
-                {showAnswers ? (
-                  <span>{question.answer}</span>
-                ) : (
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    value={userAnswer}
-                    onChange={(event) => handleAnswerChange(question.id, event.target.value)}
-                    aria-label={`Answer for question ${index + 1}`}
-                    className="w-20 rounded-md border border-paper-line bg-white px-2 py-1 font-mono text-lg text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-turmeric-deep"
-                  />
-                )}
-                {submitted && !showAnswers && (
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={userAnswer}
+                  onChange={(event) => handleAnswerChange(question.id, event.target.value)}
+                  aria-label={`Answer for question ${index + 1}`}
+                  className="w-20 rounded-md border border-paper-line bg-white px-2 py-1 font-mono text-lg text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-turmeric-deep"
+                />
+                {submitted && (
                   <span
                     className={`inline-flex items-center ${isCorrect ? 'text-chalkboard' : 'text-kumkum'}`}
                   >
