@@ -35,7 +35,7 @@ export function HomePage() {
           tamilTitle="தமிழ் வீட்டுப்பாடம்"
           description="Reading, writing, and grammar practice for Tamil homework."
           icon={<BookIcon />}
-          status="coming-soon"
+          status="available"
         />
       </div>
     </div>

@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "VVNA Hub - a home-practice hub for kids. Phase 1 ships Arithmetic Practice (Addition, Subtraction, Multiplication, Division with 50 generated questions) and a placeholder for Tamil Homework.",
+  "description": "VVNA Hub - a home-practice hub for kids. Ships Arithmetic Practice (Addition, Subtraction, Multiplication, Division with 50 generated questions) and Tamil Homework (list/add worksheets saved as files via the File System Access API).",
   "engines": {
     "node": ">=20.19.0"
   },
@@ -20,6 +20,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@piraisoodan/tanglish": "^0.1.2",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-router-dom": "^7.18.1"
