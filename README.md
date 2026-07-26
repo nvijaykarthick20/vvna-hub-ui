@@ -1,9 +1,8 @@
 # VVNA Hub
 
-A small home-practice hub. It ships **Arithmetic Practice** (pick one or
-more operations and a number size, get a fresh 50-question worksheet) and
-**Tamil Homework** (list and add worksheets, saved as real files via the
-browser's File System Access API).
+A small home-practice hub. Phase 1 ships **Arithmetic Practice** (pick one
+or more operations and a number size, get a fresh 50-question worksheet) and
+a placeholder for **Tamil Homework**, coming in a later phase.
 
 Built with React 19, TypeScript, Vite 8, and Tailwind CSS v4.
 
