@@ -74,8 +74,20 @@ npm run preview    # serves the dist/ build locally, to sanity-check it
 
 **Home screen** - two tiles: *Arithmetic Practice* and *Tamil Homework*.
 
-**Tamil Homework** - currently a placeholder page. Clicking the tile
-navigates to a screen stating the feature is under development.
+**Tamil Homework**:
+
+1. Clicking the tile opens a list of saved worksheets. The first time, the
+   app asks you to choose a folder on your computer to store them in - it
+   remembers that folder for next time (via the File System Access API),
+   though your browser may ask you to re-confirm access each session.
+2. **Add new work** opens a form with three fields - *Worksheet for*,
+   *Title*, and *Text*. Saving writes one JSON file per worksheet into the
+   chosen folder and returns to the list.
+3. Each worksheet in the list shows who it's for and when it was last
+   updated; expand it to read the full text.
+4. This only works in Chromium browsers (Chrome, Edge) - Firefox and
+   Safari don't support the File System Access API yet. Editing/deleting a
+   saved worksheet isn't built yet, only list + add.
 
 **Arithmetic Practice**:
 
@@ -131,7 +143,13 @@ vvna-hub-ui/
     │   └── ui/                   # Button, SelectableCard, icons, KolamMotif
     └── features/
         ├── home/HomePage.tsx
-        ├── tamil-homework/TamilHomeworkPage.tsx
+        ├── tamil-homework/
+        │   ├── CLAUDE.md              # Rules for the file-storage logic
+        │   ├── types.ts
+        │   ├── worksheetStorage.ts
+        │   ├── useWorksheetsDirectory.ts
+        │   ├── TamilHomeworkListPage.tsx
+        │   └── TamilHomeworkNewPage.tsx
         └── arithmetic/
             ├── CLAUDE.md              # Rules for question-generation logic
             ├── types.ts
@@ -168,16 +186,18 @@ in it efficiently:
   conventions, roadmap) that are only needed for certain tasks, so they're
   split out instead of bloating the root file.
 - **Nested `CLAUDE.md` files** (`src/components/CLAUDE.md`,
-  `src/features/arithmetic/CLAUDE.md`) hold rules specific to that folder,
-  like why division is generated the way it is.
+  `src/features/arithmetic/CLAUDE.md`,
+  `src/features/tamil-homework/CLAUDE.md`) hold rules specific to that
+  folder, like why division is generated the way it is, or how the File
+  System Access permission flow behaves.
 
 If you're using Claude Code, it will pick these up automatically. If you're
 using a different assistant, point it at `CLAUDE.md` first.
 
 ## Roadmap
 
-Phase 1 (this codebase) is Arithmetic Practice + a Tamil Homework
-placeholder. What's planned after that will be scoped separately - see
+This codebase ships Arithmetic Practice and Tamil Homework (list + add).
+What's planned after that will be scoped separately - see
 `.claude/context/ROADMAP.md` for the current in-scope/out-of-scope list.
 
 ## License

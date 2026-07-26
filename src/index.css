@@ -50,12 +50,19 @@ body {
   }
 }
 
-/* Printable worksheet: strip decoration, keep it ink-friendly. */
+/* Printable worksheet: strip decoration, keep it ink-friendly. Margin is
+   set in cm (not in/mm) so the same rule reads sensibly on both Letter and
+   A4 - `size: auto` defers the actual paper choice to the printer/print
+   dialog rather than forcing one. */
 @media print {
   .no-print {
     display: none !important;
   }
   body {
     background: #fff;
+  }
+  @page {
+    size: auto;
+    margin: 2cm;
   }
 }

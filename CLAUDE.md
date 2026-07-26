@@ -13,28 +13,36 @@ actually needs it, to keep token usage down.
    don't need to read the whole `src/` tree for most changes.
 3. **Before writing or editing any component/page/logic**, check whether
    the folder you're in has its own `CLAUDE.md`
-   (`src/components/CLAUDE.md`, `src/features/arithmetic/CLAUDE.md`) and
-   read that too - those rules are specific and override generic guidance
-   here if the two ever conflict.
+   (`src/components/CLAUDE.md`, `src/features/arithmetic/CLAUDE.md`,
+   `src/features/tamil-homework/CLAUDE.md`) and read that too - those
+   rules are specific and override generic guidance here if the two ever
+   conflict.
 4. **Coding style questions** (TypeScript strictness, React patterns,
    Tailwind usage, testing) live in `.claude/context/CONVENTIONS.md` - read
    it before your first code change in a session, not on every task.
 5. **"Is this in scope for right now?"** is answered by
-   `.claude/context/ROADMAP.md` - check it before building out Tamil
-   Homework or any feature beyond arithmetic practice.
+   `.claude/context/ROADMAP.md` - check it before extending Tamil Homework
+   or building any feature beyond arithmetic practice and the existing
+   Tamil worksheet list/add flow.
 
 ## What this project is
 
-VVNA Hub - a small practice hub. Phase 1 (this codebase) ships:
+VVNA Hub - a small practice hub. This codebase ships:
 
-- A Home screen with two tiles: **Arithmetic Practice** (fully working) and
-  **Tamil Homework** (placeholder, "in development").
+- A Home screen with two tiles: **Arithmetic Practice** and **Tamil
+  Homework** (both working).
 - Arithmetic Practice: choose an operation (addition, subtraction,
   multiplication, division) and a number size (1-4 digits), generate 50
-  questions, reveal/hide answers, regenerate, print.
+  questions, reveal/hide answers, regenerate, print. In-memory only -
+  nothing is saved.
+- Tamil Homework: list saved worksheets and add new ones ("Worksheet for",
+  "Title", "Text"). Worksheets are saved as real files via the browser's
+  File System Access API (Chrome/Edge only) - see
+  `src/features/tamil-homework/CLAUDE.md` before touching this.
 
-No backend, no accounts, no persistence. See `.claude/context/ROADMAP.md`
-for what's deliberately out of scope in this phase.
+No backend, no accounts. Tamil worksheets are the one piece of persisted
+state in the app; everything else is in-memory. See
+`.claude/context/ROADMAP.md` for what's deliberately out of scope.
 
 ## Tech stack (versions as of July 2026 - see README.md "Tech stack" table
 for the full list with links)
@@ -69,8 +77,9 @@ run `npm run test` - see that folder's `CLAUDE.md` for why.
 - Don't loosen `tsconfig.app.json` strictness or disable an ESLint rule
   project-wide to make an error go away - fix the code, or use a narrowly
   scoped, commented suppression for that one line.
-- Don't build out Tamil Homework logic speculatively - it's a placeholder
-  until the owner scopes that phase (see ROADMAP.md).
+- Don't build out Tamil Homework features beyond what's scoped (currently:
+  list + add) speculatively - e.g. no edit/delete/grading until the owner
+  asks for it (see ROADMAP.md and `src/features/tamil-homework/CLAUDE.md`).
 - When you change a rule documented in a `CLAUDE.md` or `.claude/context/`
   file (a folder's responsibilities, a generation rule, a convention),
   update that file in the same change.
