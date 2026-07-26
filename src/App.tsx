@@ -1,7 +1,8 @@
 import { Route, Routes } from 'react-router-dom';
 import { AppShell } from '@/components/layout/AppShell';
 import { HomePage } from '@/features/home/HomePage';
-import { TamilHomeworkPage } from '@/features/tamil-homework/TamilHomeworkPage';
+import { TamilHomeworkListPage } from '@/features/tamil-homework/TamilHomeworkListPage';
+import { TamilHomeworkFormPage } from '@/features/tamil-homework/TamilHomeworkFormPage';
 import { ArithmeticSetupPage } from '@/features/arithmetic/ArithmeticSetupPage';
 import { ArithmeticLearnPage } from '@/features/arithmetic/ArithmeticLearnPage';
 import { ArithmeticQuestionsPage } from '@/features/arithmetic/ArithmeticQuestionsPage';
@@ -15,7 +16,9 @@ export default function App() {
     <AppShell>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/tamil-homework" element={<TamilHomeworkPage />} />
+        <Route path="/tamil-homework" element={<TamilHomeworkListPage />} />
+        <Route path="/tamil-homework/new" element={<TamilHomeworkFormPage />} />
+        <Route path="/tamil-homework/edit" element={<TamilHomeworkFormPage />} />
         <Route path="/arithmetic" element={<ArithmeticSetupPage />} />
         <Route path="/arithmetic/learn" element={<ArithmeticLearnPage />} />
         <Route path="/arithmetic/questions" element={<ArithmeticQuestionsPage />} />

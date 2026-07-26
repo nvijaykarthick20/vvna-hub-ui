@@ -13,8 +13,8 @@ interface AppShellProps {
  */
 export function AppShell({ children }: AppShellProps) {
   return (
-    <div className="flex min-h-screen flex-col bg-paper">
-      <header className="relative overflow-hidden bg-chalkboard">
+    <div className="flex min-h-screen flex-col bg-paper print:bg-white">
+      <header className="no-print relative overflow-hidden bg-chalkboard">
         <KolamMotif className="pointer-events-none absolute -top-10 right-[-4rem] h-64 w-64 text-turmeric/15 sm:h-80 sm:w-80" />
         <div className="relative mx-auto flex max-w-5xl items-center gap-3 px-6 py-6">
           <Link to="/" className="flex items-center gap-3 no-underline">
@@ -28,7 +28,7 @@ export function AppShell({ children }: AppShellProps) {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-10 sm:py-14">{children}</main>
+      <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-6 sm:py-8">{children}</main>
 
       <footer className="no-print border-t border-paper-line/70 px-6 py-6 text-center text-sm text-ink-soft">
         Built for daily practice, one worksheet at a time.

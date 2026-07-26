@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, Navigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { CheckIcon, CrossIcon } from '@/components/ui/icons';
@@ -30,21 +30,44 @@ function Worksheet({ selection }: { selection: ArithmeticSelection }) {
   );
   const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [startedAt, setStartedAt] = useState(() => Date.now());
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [isTimerRunning, setIsTimerRunning] = useState(true);
 
   const allAnswered = questions.every(
     (question) => (userAnswers[question.id] ?? '').trim() !== '',
   );
 
+  useEffect(() => {
+    if (!isTimerRunning) {
+      return;
+    }
+    const intervalId = window.setInterval(() => {
+      setElapsedSeconds(Math.floor((Date.now() - startedAt) / 1000));
+    }, 1000);
+    return () => window.clearInterval(intervalId);
+  }, [isTimerRunning, startedAt]);
+
   function handleAnswerChange(id: string, value: string) {
     const digitsOnly = value.replace(/\D/g, '');
     setUserAnswers((previous) => ({ ...previous, [id]: digitsOnly }));
     setSubmitted(false);
+    setIsTimerRunning(true);
+  }
+
+  function handleSubmit() {
+    setSubmitted(true);
+    setElapsedSeconds(Math.floor((Date.now() - startedAt) / 1000));
+    setIsTimerRunning(false);
   }
 
   function handleNewSet() {
     setQuestions(generateQuestions(operations, digits));
     setUserAnswers({});
     setSubmitted(false);
+    setStartedAt(Date.now());
+    setElapsedSeconds(0);
+    setIsTimerRunning(true);
   }
 
   return (
@@ -58,13 +81,17 @@ function Worksheet({ selection }: { selection: ArithmeticSelection }) {
           <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
             50 questions to practice
           </h1>
+          <p className="mt-2 font-mono text-sm text-ink-soft">
+            {submitted ? 'Completed in ' : 'Time: '}
+            {formatDuration(elapsedSeconds)}
+          </p>
         </div>
 
         <div className="flex flex-wrap gap-3">
           <Button variant="secondary" onClick={handleNewSet}>
             New set
           </Button>
-          <Button onClick={() => setSubmitted(true)} disabled={!allAnswered}>
+          <Button onClick={handleSubmit} disabled={!allAnswered}>
             Submit answers
           </Button>
           <Button onClick={() => window.print()}>Print worksheet</Button>
@@ -122,4 +149,10 @@ function Worksheet({ selection }: { selection: ArithmeticSelection }) {
       </div>
     </div>
   );
+}
+
+function formatDuration(totalSeconds: number) {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }

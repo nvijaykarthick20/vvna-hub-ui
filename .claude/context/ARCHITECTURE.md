@@ -8,12 +8,14 @@ from this app, not a full-repo read.
 
 VVNA Hub is a Vite + React 19 + TypeScript single-page app. Client-side
 routing (`react-router-dom`) switches between a Home screen and two
-features: Arithmetic Practice (fully built) and Tamil Homework (a
-placeholder page - see ROADMAP.md). There is no backend, no auth, and no
-persistence; every arithmetic worksheet is generated fresh in memory. All
-styling is Tailwind CSS v4, configured via the `@theme` block in
-`src/index.css` (not a `tailwind.config.js` - v4 doesn't need one for this
-project's needs).
+features: Arithmetic Practice (fully built, in-memory only) and Tamil
+Homework (list + add worksheets, persisted as real files via the File
+System Access API - see ROADMAP.md). There is no backend and no auth;
+every arithmetic worksheet is generated fresh in memory, and Tamil
+worksheets are saved to a folder the user picks in-browser, not to a
+server. All styling is Tailwind CSS v4, configured via the `@theme` block
+in `src/index.css` (not a `tailwind.config.js` - v4 doesn't need one for
+this project's needs).
 
 ## Request-to-file map
 
@@ -24,7 +26,8 @@ project's needs).
 | How questions are generated / answer correctness         | `src/features/arithmetic/generateQuestions.ts` + its `CLAUDE.md`   |
 | The 2/3/4-digit multiplication lesson (worked examples)  | `src/features/arithmetic/ArithmeticLearnPage.tsx` + `multiplicationLesson.ts` |
 | The worksheet display, "show answers", print, "new set"  | `src/features/arithmetic/ArithmeticQuestionsPage.tsx`              |
-| Tamil Homework placeholder                               | `src/features/tamil-homework/TamilHomeworkPage.tsx`                |
+| Tamil Homework list / worksheet form                      | `src/features/tamil-homework/TamilHomeworkListPage.tsx`, `TamilHomeworkNewPage.tsx` |
+| How Tamil worksheets are saved/read (File System Access)  | `src/features/tamil-homework/worksheetStorage.ts` + its `CLAUDE.md` |
 | Header, footer, page frame, the kolam motif               | `src/components/layout/AppShell.tsx`, `src/components/ui/KolamMotif.tsx` |
 | Adding a route                                            | `src/App.tsx` only - it's intentionally a thin route map            |
 | Colors, fonts, spacing tokens                             | `src/index.css` (`@theme` block) - see CONVENTIONS.md before adding a raw hex value elsewhere |
@@ -37,7 +40,10 @@ project's needs).
   own `CLAUDE.md`.
 - `src/features/<name>/` - one folder per user-facing feature. Owns its own
   types, logic, and pages. `src/features/arithmetic/` has its own
-  `CLAUDE.md` because its logic has correctness rules worth reading first.
+  `CLAUDE.md` because its logic has correctness rules worth reading first;
+  `src/features/tamil-homework/` has its own `CLAUDE.md` because it's the
+  one feature that talks to the real file system, with non-obvious browser
+  permission behavior worth reading before touching it.
 - `src/App.tsx` - route table only.
 - `src/main.tsx` - app bootstrap (StrictMode + BrowserRouter + CSS import).
   Rarely needs to change.
@@ -65,3 +71,30 @@ project's needs).
 5. `generateQuestions(operation, digits)` produces 50 questions client-side.
    Nothing is persisted - refreshing the questions page loses the set
    (regenerate via "New set" or redo setup).
+
+## Data flow for the Tamil Homework feature (the one persisted flow in the app)
+
+1. `useWorksheetsDirectory()` resolves where worksheets live: a
+   `FileSystemDirectoryHandle` persisted in IndexedDB
+   (`directoryHandleStore.ts`) plus its *live* permission state (queried
+   fresh every mount, since Chromium can require a new user gesture to
+   reuse a handle's permission each session). It returns a
+   `DirectoryStatus`, not a global store - `TamilHomeworkListPage` and
+   `TamilHomeworkNewPage` each mount it independently, the same way
+   arithmetic pages each read `location.state` independently rather than
+   sharing a context provider. Don't introduce Context/Redux/Zustand to
+   share this between the two pages.
+2. `TamilHomeworkListPage` renders a different body per `DirectoryStatus`
+   (unsupported browser / choose a folder / re-grant permission / ready),
+   and only calls `listWorksheets(handle)` once `status === 'ready'`.
+3. "Add new work" navigates to `/tamil-homework/new`.
+   `TamilHomeworkNewPage` also resolves `useWorksheetsDirectory()`; if it
+   settles on anything other than `'ready'`, it redirects back to
+   `/tamil-homework` instead of guessing - same pattern as
+   `ArithmeticQuestionsPage` redirecting on missing router state.
+4. `saveWorksheet(handle, input)` writes one `<uuid>.json` file per
+   worksheet directly into the chosen folder via
+   `FileSystemFileHandle.createWritable()`, then the page navigates back
+   to the list, which re-fetches on mount. See
+   `src/features/tamil-homework/CLAUDE.md` for the storage mechanics and
+   deliberate tradeoffs (Chrome/Edge only, permission re-prompts).
