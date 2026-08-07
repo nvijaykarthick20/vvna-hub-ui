@@ -9,52 +9,46 @@ worksheet with a wrong answer key - read this before touching
 - `types.ts` - the `Operation` / `DigitCount` / `ArithmeticQuestion` /
   `ArithmeticSelection` types. Everything else in the folder (and
   `ArithmeticSetupPage` / `ArithmeticQuestionsPage`) imports from here.
-  `ArithmeticSelection.operations` is a non-empty `Operation[]` - a single
-  element is today's single-operation worksheet, 2+ is combo mode. There is
-  no separate "combo" type; `isArithmeticSelection` just requires a
-  non-empty array.
+  Both `ArithmeticSelection.operations` and `ArithmeticSelection.digits` are
+  non-empty arrays (`Operation[]` / `DigitCount[]`) - a single element in
+  either is today's single-choice worksheet, 2+ in either is combo mode.
+  There is no separate "combo" type; `isArithmeticSelection` just requires
+  both arrays to be non-empty.
 - `generateQuestions.ts` - the only place that creates questions. No
   component should call `Math.random()` directly; call `generateQuestions`
   instead so every question is generated the same, tested way.
-  `generateQuestions(operations, digits)` always takes an array: it splits
-  `QUESTION_COUNT` as evenly as possible across the given operations (see
-  `distributeCount`), builds each operation's share with `fillQuestions`,
-  then shuffles the combined result so a combo worksheet isn't grouped by
-  operation. Uniqueness (`seen`) is a single set shared across all
-  operations in the call, keyed as `` `${operation}_${operand1}_${operand2}` ``
-  - keying by operation too means e.g. `3 + 4` and `3 x 4` are never treated
-  as colliding just because they share operand values.
+  `generateQuestions(operations, digits)` always takes two arrays: it builds
+  the cross product of every (operation, digit count) pairing, splits
+  `QUESTION_COUNT` as evenly as possible across all of those pairings (see
+  `distributeCount`), builds each pairing's share with `fillQuestions`, then
+  shuffles the combined result so a combo worksheet isn't grouped by
+  operation or number size. Uniqueness (`seen`) is a single set shared
+  across every pairing in the call, keyed as
+  `` `${operation}_${operand1}_${operand2}` `` - keying by operation (not
+  digit count) is safe because `digitRange()` gives each digit count a
+  disjoint operand range, so e.g. 1-digit and 2-digit addition can never
+  produce colliding keys just by mixing digit sizes.
 - `generateQuestions.test.ts` - a table test across all 4 operations x all 4
   digit counts, plus a `combo mode` describe block covering even/uneven
   splits, shuffling, and correctness when 2+ operations are mixed. **If you
   change the generation rules below, update this file in the same change**
   - a passing test suite is what makes this logic safe to refactor later.
-- `ArithmeticSetupPage.tsx` - collects the operation(s) + digit choice only.
-  The operation picker is multi-select (checkbox semantics via
-  `SelectableCard`'s `role="checkbox"`); the learner can pick just one
-  (today's behavior, unchanged) or several (combo mode). It must not
-  generate questions itself; it hands the selection to the next page via
-  router `state` (`navigate(path, { state })`). If multiplication is among
-  the selected operations and `digits > 1`, that next page is
-  `ArithmeticLearnPage`; otherwise it's `ArithmeticQuestionsPage` directly.
-- `multiplicationLesson.ts` - `buildMultiplicationBreakdown(operand1,
-  operand2)` decomposes a multiplication into the digit-by-digit partial
-  products (ones, tens, ...) taught on `ArithmeticLearnPage`. Has its own
-  `multiplicationLesson.test.ts` - update it if you change how steps are
-  built.
-- `ArithmeticLearnPage.tsx` - the long-multiplication lesson shown before
-  the worksheet for multiplication with `digits > 1` (1-digit multiplication
-  skips straight to the worksheet, same as every other operation). Lets the
-  learner regenerate the worked example via `generateSampleQuestion` as many
-  times as they want before continuing; only navigates to
-  `/arithmetic/questions` when they click "I'm ready". Same "redirect to
-  `/arithmetic` instead of guessing" rule applies if `location.state`
-  doesn't have `'multiplication'` in `operations` with `digits > 1`.
+- `ArithmeticSetupPage.tsx` - collects the operation(s) + digit size(s)
+  only. Both the operation picker and the number-size picker are
+  multi-select (checkbox semantics via `SelectableCard`'s
+  `role="checkbox"`); the learner can pick just one of each (today's
+  original single-choice behavior, unchanged) or several of either (combo
+  mode). It must not generate questions itself; it hands the selection to
+  `ArithmeticQuestionsPage` via router `state`
+  (`navigate('/arithmetic/questions', { state })`). Every operation
+  (including multiplication at any digit count) goes straight to the
+  worksheet - there is no intermediate lesson step.
 - `ArithmeticQuestionsPage.tsx` - reads that router `state` and calls
   `generateQuestions`. If `state` is missing (e.g. someone opens the URL
   directly), it redirects to `/arithmetic` rather than guessing - do not
-  replace that redirect with a default operation/digit count. The header
-  joins every selected operation's label (e.g. "Addition + Multiplication")
+  replace that redirect with a default operation/digit selection. The
+  header joins every selected operation's label (e.g. "Addition +
+  Multiplication") and every selected digit size (e.g. "1-digit + 2-digit")
   for combo worksheets.
 
 ## Rules that are deliberate, not bugs
@@ -81,11 +75,18 @@ worksheet with a wrong answer key - read this before touching
   allows repeats only once that operation's unique pool is exhausted. This
   is intentional; don't "fix" it by shrinking `QUESTION_COUNT`.
 - **Combo distribution is even, not weighted.** `distributeCount` splits
-  `QUESTION_COUNT` as evenly as possible across the selected operations
-  (remainder going to the first operations in the array) - it's not
-  proportional to each operation's available unique-pair pool. Don't change
-  this to a random/weighted split without updating
-  `generateQuestions.test.ts`'s combo assertions, which check exact counts.
+  `QUESTION_COUNT` as evenly as possible across every (operation, digit
+  count) pairing in the combo (remainder going to the first pairings in the
+  cross product) - it's not proportional to each pairing's available
+  unique-pair pool. Don't change this to a random/weighted split without
+  updating `generateQuestions.test.ts`'s combo assertions, which check
+  exact counts.
+- **Digit-size combo is a cross product, not a parallel selection.**
+  Picking 2 operations and 2 digit sizes produces 4 groups (every operation
+  x every digit size), not 2. This matches how a learner reads "Addition +
+  Multiplication, 1-digit + 2-digit" - they expect all four combinations
+  practiced, not addition-only-1-digit paired with
+  multiplication-only-2-digit.
 
 ## If you add a new operation or a new setting (e.g. negative numbers)
 

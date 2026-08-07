@@ -88,3 +88,11 @@ export async function updateWorksheet(
 
   return worksheet;
 }
+
+/** Removes a worksheet's `<uuid>.json` file from the folder. */
+export async function deleteWorksheet(
+  handle: FileSystemDirectoryHandle,
+  worksheet: TamilWorksheet,
+): Promise<void> {
+  await handle.removeEntry(`${worksheet.id}.json`);
+}

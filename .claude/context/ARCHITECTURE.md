@@ -24,7 +24,6 @@ this project's needs).
 | Home screen copy, layout, or the two feature tiles       | `src/features/home/HomePage.tsx`, `src/components/home/FeatureCard.tsx` |
 | Arithmetic operation/digit picker UI                     | `src/features/arithmetic/ArithmeticSetupPage.tsx`                  |
 | How questions are generated / answer correctness         | `src/features/arithmetic/generateQuestions.ts` + its `CLAUDE.md`   |
-| The 2/3/4-digit multiplication lesson (worked examples)  | `src/features/arithmetic/ArithmeticLearnPage.tsx` + `multiplicationLesson.ts` |
 | The worksheet display, "show answers", print, "new set"  | `src/features/arithmetic/ArithmeticQuestionsPage.tsx`              |
 | Tamil Homework list / worksheet form                      | `src/features/tamil-homework/TamilHomeworkListPage.tsx`, `TamilHomeworkNewPage.tsx` |
 | How Tamil worksheets are saved/read (File System Access)  | `src/features/tamil-homework/worksheetStorage.ts` + its `CLAUDE.md` |
@@ -51,24 +50,16 @@ this project's needs).
 ## Data flow for the Arithmetic feature (the one stateful flow in the app)
 
 1. `ArithmeticSetupPage` holds `operation` and `digits` in local state.
-2. On submit, it calls `navigate(path, { state: { operation, digits } })` -
+2. On submit, it calls `navigate('/arithmetic/questions', { state: { operation, digits } })` -
    the selection travels as router state, not global state or a context
    provider. There is no app-wide store in this project; don't introduce
    one (Redux/Zustand/Context) for this single hand-off without discussing
    it first, since the whole app currently has exactly one piece of
-   cross-page state. `path` is `/arithmetic/learn` for multiplication with
-   `digits > 1`, otherwise `/arithmetic/questions` directly.
-3. `ArithmeticLearnPage` (multiplication, `digits > 1` only) teaches the
-   long-multiplication algorithm with a worked example built by
-   `multiplicationLesson.ts`, and lets the learner generate a new example as
-   many times as they want. "I'm ready" forwards the same selection to
-   `/arithmetic/questions`. Like the questions page, it redirects to
-   `/arithmetic` if `location.state` doesn't match what it expects, rather
-   than guessing.
-4. `ArithmeticQuestionsPage` reads `location.state`. If it's missing (direct
+   cross-page state.
+3. `ArithmeticQuestionsPage` reads `location.state`. If it's missing (direct
    URL access/refresh), it redirects to `/arithmetic` instead of guessing a
    default operation/digit count.
-5. `generateQuestions(operation, digits)` produces 50 questions client-side.
+4. `generateQuestions(operation, digits)` produces 50 questions client-side.
    Nothing is persisted - refreshing the questions page loses the set
    (regenerate via "New set" or redo setup).
 

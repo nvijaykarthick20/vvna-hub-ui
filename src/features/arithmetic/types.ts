@@ -16,15 +16,20 @@ export interface ArithmeticSelection {
   /** Non-empty. A single element is today's single-operation worksheet; 2+
    * elements is combo mode (questions are mixed across all of them). */
   operations: Operation[];
-  digits: DigitCount;
+  /** Non-empty, same combo semantics as `operations`: a single element is a
+   * single number size; 2+ mixes questions across every selected size. */
+  digits: DigitCount[];
 }
 
 /** Type guard for router `state` handed between arithmetic pages - see
- * ArithmeticQuestionsPage and ArithmeticLearnPage, both of which redirect to
- * `/arithmetic` rather than guessing a default when this fails. */
+ * ArithmeticQuestionsPage, which redirects to `/arithmetic` rather than
+ * guessing a default when this fails. */
 export function isArithmeticSelection(value: unknown): value is ArithmeticSelection {
   if (typeof value !== 'object' || value === null) return false;
   if (!('operations' in value) || !('digits' in value)) return false;
   const operations = (value as { operations: unknown }).operations;
-  return Array.isArray(operations) && operations.length > 0;
+  const digits = (value as { digits: unknown }).digits;
+  return (
+    Array.isArray(operations) && operations.length > 0 && Array.isArray(digits) && digits.length > 0
+  );
 }

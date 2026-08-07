@@ -28,7 +28,7 @@ describe('generateQuestions', () => {
   for (const operation of operations) {
     for (const digits of digitCounts) {
       it(`generates ${QUESTION_COUNT} correct "${operation}" questions at ${digits} digit(s)`, () => {
-        const questions = generateQuestions([operation], digits);
+        const questions = generateQuestions([operation], [digits]);
 
         expect(questions).toHaveLength(QUESTION_COUNT);
 
@@ -41,14 +41,14 @@ describe('generateQuestions', () => {
   }
 
   it('produces unique question ids', () => {
-    const questions = generateQuestions(['multiplication'], 3);
+    const questions = generateQuestions(['multiplication'], [3]);
     const ids = new Set(questions.map((question) => question.id));
     expect(ids.size).toBe(QUESTION_COUNT);
   });
 
   describe('combo mode', () => {
     it('splits questions as evenly as possible across 2 selected operations', () => {
-      const questions = generateQuestions(['addition', 'subtraction'], 2);
+      const questions = generateQuestions(['addition', 'subtraction'], [2]);
 
       expect(questions).toHaveLength(QUESTION_COUNT);
       expect(questions.filter((q) => q.operation === 'addition')).toHaveLength(25);
@@ -56,7 +56,7 @@ describe('generateQuestions', () => {
     });
 
     it('splits an uneven count across 3 selected operations', () => {
-      const questions = generateQuestions(['addition', 'subtraction', 'multiplication'], 2);
+      const questions = generateQuestions(['addition', 'subtraction', 'multiplication'], [2]);
       const counts = ['addition', 'subtraction', 'multiplication'].map(
         (op) => questions.filter((q) => q.operation === op).length,
       );
@@ -66,7 +66,7 @@ describe('generateQuestions', () => {
     });
 
     it('mixes all 4 operations and every question stays correct per its own operation', () => {
-      const questions = generateQuestions(operations, 2);
+      const questions = generateQuestions(operations, [2]);
 
       expect(questions).toHaveLength(QUESTION_COUNT);
       for (const operation of operations) {
@@ -78,7 +78,7 @@ describe('generateQuestions', () => {
     });
 
     it('shuffles the combined worksheet instead of grouping by operation', () => {
-      const questions = generateQuestions(['addition', 'subtraction'], 2);
+      const questions = generateQuestions(['addition', 'subtraction'], [2]);
 
       let switches = 0;
       for (let i = 1; i < questions.length; i += 1) {
@@ -95,7 +95,7 @@ describe('generateQuestions', () => {
       // ordered operand pairs to draw from - make sure sharing one `seen`
       // set across operations (keyed per-operation, see generateQuestions.ts)
       // still produces a full, correct worksheet.
-      const questions = generateQuestions(['addition', 'multiplication'], 1);
+      const questions = generateQuestions(['addition', 'multiplication'], [1]);
       expect(questions).toHaveLength(QUESTION_COUNT);
       for (const question of questions) {
         expectCorrectAnswer(question);
@@ -103,7 +103,44 @@ describe('generateQuestions', () => {
     });
 
     it('produces unique question ids for a combo worksheet', () => {
-      const questions = generateQuestions(['addition', 'division'], 3);
+      const questions = generateQuestions(['addition', 'division'], [3]);
+      const ids = new Set(questions.map((question) => question.id));
+      expect(ids.size).toBe(QUESTION_COUNT);
+    });
+
+    it('splits questions across 2 selected digit sizes for a single operation', () => {
+      const questions = generateQuestions(['addition'], [1, 2]);
+
+      expect(questions).toHaveLength(QUESTION_COUNT);
+      const oneDigitCount = questions.filter(
+        (q) => q.operand1 <= 9 && q.operand2 <= 9,
+      ).length;
+      const twoDigitCount = questions.filter(
+        (q) => (q.operand1 >= 10 || q.operand2 >= 10) && q.operand1 <= 99 && q.operand2 <= 99,
+      ).length;
+
+      expect(oneDigitCount).toBe(25);
+      expect(twoDigitCount).toBe(25);
+    });
+
+    it('mixes operations and digit sizes together (cross product), keeping every question correct', () => {
+      const questions = generateQuestions(['addition', 'multiplication'], [1, 2]);
+
+      // 2 operations x 2 digit sizes = 4 groups, 50 / 4 = [13, 13, 12, 12].
+      expect(questions).toHaveLength(QUESTION_COUNT);
+      for (const question of questions) {
+        expectCorrectAnswer(question);
+      }
+      // Both digit sizes should be represented for each operation.
+      for (const operation of ['addition', 'multiplication'] as Operation[]) {
+        const opQuestions = questions.filter((q) => q.operation === operation);
+        expect(opQuestions.some((q) => q.operand1 <= 9 && q.operand2 <= 9)).toBe(true);
+        expect(opQuestions.some((q) => q.operand1 >= 10 || q.operand2 >= 10)).toBe(true);
+      }
+    });
+
+    it('produces unique question ids when combining operations and digit sizes', () => {
+      const questions = generateQuestions(['addition', 'subtraction'], [1, 2]);
       const ids = new Set(questions.map((question) => question.id));
       expect(ids.size).toBe(QUESTION_COUNT);
     });

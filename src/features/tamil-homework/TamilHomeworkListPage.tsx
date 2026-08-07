@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { useWorksheetsDirectory } from './useWorksheetsDirectory';
-import { listWorksheets } from './worksheetStorage';
+import { deleteWorksheet, listWorksheets } from './worksheetStorage';
 import type { TamilWorksheet } from './types';
 
 function formatDate(iso: string): string {
@@ -15,12 +15,20 @@ function formatDate(iso: string): string {
 
 interface WorksheetCardProps {
   worksheet: TamilWorksheet;
+  deleting: boolean;
+  onDelete: (worksheet: TamilWorksheet) => void;
 }
 
-function WorksheetCard({ worksheet }: WorksheetCardProps) {
+function WorksheetCard({ worksheet, deleting, onDelete }: WorksheetCardProps) {
   const navigate = useNavigate();
   const updated = formatDate(worksheet.updatedAt);
   const created = formatDate(worksheet.createdAt);
+
+  function handleDeleteClick() {
+    if (window.confirm(`Delete "${worksheet.title}"? This can't be undone.`)) {
+      onDelete(worksheet);
+    }
+  }
 
   return (
     <div className="flex items-start justify-between gap-4 rounded-2xl border border-paper-line bg-white/70 p-5 shadow-card">
@@ -33,13 +41,23 @@ function WorksheetCard({ worksheet }: WorksheetCardProps) {
         <p className="mt-1 line-clamp-1 text-sm text-ink-soft/80">{worksheet.text}</p>
       </div>
 
-      <Button
-        variant="secondary"
-        className="shrink-0"
-        onClick={() => navigate('/tamil-homework/edit', { state: worksheet })}
-      >
-        Edit
-      </Button>
+      <div className="flex shrink-0 gap-3">
+        <Button
+          variant="secondary"
+          onClick={() => navigate('/tamil-homework/edit', { state: worksheet })}
+          disabled={deleting}
+        >
+          Edit
+        </Button>
+        <Button
+          variant="secondary"
+          className="border-kumkum text-kumkum hover:bg-kumkum/5"
+          onClick={handleDeleteClick}
+          disabled={deleting}
+        >
+          {deleting ? 'Deleting…' : 'Delete'}
+        </Button>
+      </div>
     </div>
   );
 }
@@ -56,6 +74,7 @@ export function TamilHomeworkListPage() {
     useWorksheetsDirectory();
   const [worksheets, setWorksheets] = useState<TamilWorksheet[] | null>(null);
   const [listError, setListError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (status !== 'ready' || !handle) return;
@@ -75,6 +94,20 @@ export function TamilHomeworkListPage() {
       cancelled = true;
     };
   }, [status, handle]);
+
+  async function handleDelete(worksheet: TamilWorksheet) {
+    if (!handle) return;
+    setDeletingId(worksheet.id);
+    setListError(null);
+    try {
+      await deleteWorksheet(handle, worksheet);
+      setWorksheets((prev) => prev?.filter((w) => w.id !== worksheet.id) ?? prev);
+    } catch (err) {
+      setListError(err instanceof Error ? err.message : 'Could not delete the worksheet.');
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   return (
     <div className="flex flex-col gap-10">
@@ -142,7 +175,12 @@ export function TamilHomeworkListPage() {
           {worksheets !== null && worksheets.length > 0 && (
             <div className="flex flex-col gap-4">
               {worksheets.map((worksheet) => (
-                <WorksheetCard key={worksheet.id} worksheet={worksheet} />
+                <WorksheetCard
+                  key={worksheet.id}
+                  worksheet={worksheet}
+                  deleting={deletingId === worksheet.id}
+                  onDelete={handleDelete}
+                />
               ))}
             </div>
           )}

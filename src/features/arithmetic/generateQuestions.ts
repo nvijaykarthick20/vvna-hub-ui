@@ -70,16 +70,6 @@ function buildQuestion(operation: Operation, digits: DigitCount): DraftQuestion 
 }
 
 /**
- * Generates a single question, for contexts that need one example rather
- * than a full worksheet (e.g. the multiplication lesson page picking a new
- * worked example).
- */
-export function generateSampleQuestion(operation: Operation, digits: DigitCount): ArithmeticQuestion {
-  const draft = buildQuestion(operation, digits);
-  return { ...draft, id: `sample-${draft.operand1}-${draft.operand2}` };
-}
-
-/**
  * Builds `count` questions for one operation, preferring (operation,
  * operand1, operand2) triples not already in `seen` across the whole
  * worksheet - keyed by operation too, so e.g. `3 + 4` and `3 x 4` aren't
@@ -113,12 +103,13 @@ function fillQuestions(
   return questions;
 }
 
-/** Splits `total` into `operations.length` parts as evenly as possible,
- * e.g. 50 across 3 operations -> [17, 17, 16]. */
-function distributeCount(operationCount: number, total: number): number[] {
-  const base = Math.floor(total / operationCount);
-  const remainder = total % operationCount;
-  return Array.from({ length: operationCount }, (_, index) => base + (index < remainder ? 1 : 0));
+/** Splits `total` into `groupCount` parts as evenly as possible, e.g. 50
+ * across 3 groups -> [17, 17, 16]. Used both for splitting across operations
+ * and, in combo mode, across every (operation, digits) pairing. */
+function distributeCount(groupCount: number, total: number): number[] {
+  const base = Math.floor(total / groupCount);
+  const remainder = total % groupCount;
+  return Array.from({ length: groupCount }, (_, index) => base + (index < remainder ? 1 : 0));
 }
 
 function shuffle<T>(items: T[]): T[] {
@@ -131,20 +122,24 @@ function shuffle<T>(items: T[]): T[] {
 }
 
 /**
- * Generates QUESTION_COUNT questions total, mixed across `operations`. A
- * single-element array reproduces today's single-operation worksheet
- * unchanged; 2+ elements split the count as evenly as possible across the
- * selected operations (see `distributeCount`) and shuffle the combined
- * result so questions aren't grouped by operation.
+ * Generates QUESTION_COUNT questions total, mixed across every combination
+ * of `operations` x `digits`. A single operation and a single digit count
+ * reproduces today's single-size worksheet unchanged; selecting more of
+ * either splits the count as evenly as possible across every (operation,
+ * digits) pairing (see `distributeCount`) and shuffles the combined result
+ * so questions aren't grouped by operation or number size.
  */
 export function generateQuestions(
   operations: Operation[],
-  digits: DigitCount,
+  digits: DigitCount[],
 ): ArithmeticQuestion[] {
   const seen = new Set<string>();
-  const counts = distributeCount(operations.length, QUESTION_COUNT);
-  const questions = operations.flatMap((operation, index) =>
-    fillQuestions(operation, digits, counts[index], seen),
+  const combos = operations.flatMap((operation) =>
+    digits.map((digitCount) => ({ operation, digitCount })),
+  );
+  const counts = distributeCount(combos.length, QUESTION_COUNT);
+  const questions = combos.flatMap((combo, index) =>
+    fillQuestions(combo.operation, combo.digitCount, counts[index], seen),
   );
 
   return shuffle(questions).map((question, index) => ({

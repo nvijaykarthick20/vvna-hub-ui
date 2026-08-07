@@ -24,14 +24,16 @@ you "fix" something that looks like a bug.
   app; it does not store worksheet content - that lives in real files.
 - `worksheetStorage.ts` - the only place that touches worksheet files:
   `chooseWorksheetsDirectory`, `getPermissionState`/`requestPermission`,
-  `listWorksheets`, `saveWorksheet`, `updateWorksheet`. `saveWorksheet`
-  names each file `<uuid>.json` (via `crypto.randomUUID()`) specifically to
-  avoid dealing with illegal filename characters in a user-typed title -
-  don't switch the filename to the title without solving that.
-  `updateWorksheet` takes the existing `TamilWorksheet` plus the edited
-  input, keeps its `id`/`createdAt`, refreshes `updatedAt`, and writes to
-  the same `<uuid>.json` - it overwrites in place rather than creating a
-  second file.
+  `listWorksheets`, `saveWorksheet`, `updateWorksheet`, `deleteWorksheet`.
+  `saveWorksheet` names each file `<uuid>.json` (via `crypto.randomUUID()`)
+  specifically to avoid dealing with illegal filename characters in a
+  user-typed title - don't switch the filename to the title without
+  solving that. `updateWorksheet` takes the existing `TamilWorksheet` plus
+  the edited input, keeps its `id`/`createdAt`, refreshes `updatedAt`, and
+  writes to the same `<uuid>.json` - it overwrites in place rather than
+  creating a second file. `deleteWorksheet` removes that same
+  `<uuid>.json` via `handle.removeEntry` - no confirmation happens at this
+  layer, that's the caller's job (see `TamilHomeworkListPage.tsx`).
 - `tanglishInput.ts` - live Tanglish -> Tamil transliteration for the "Text"
   field on `TamilHomeworkFormPage`, backed by the `@piraisoodan/tanglish`
   npm package (offline, zero deps, dictionary + phonetic-trie engine - see
@@ -52,7 +54,11 @@ you "fix" something that looks like a bug.
   flow" below.
 - `TamilHomeworkListPage.tsx` - route `/tamil-homework`. Renders a
   different body per `DirectoryStatus` and only fetches
-  `listWorksheets` once `status === 'ready'`.
+  `listWorksheets` once `status === 'ready'`. Each `WorksheetCard` has a
+  "Delete" button next to "Edit" - it's a `window.confirm` before calling
+  `deleteWorksheet`, then removes the worksheet from local state on
+  success rather than re-fetching the whole list. Delete errors reuse the
+  same `listError` state/rendering as a failed `listWorksheets` call.
 - `TamilHomeworkFormPage.tsx` - handles both `/tamil-homework/new` (add) and
   `/tamil-homework/edit` (edit). Add mode has no router `state`; edit mode
   receives the existing `TamilWorksheet` via `state` from the "Edit" button
@@ -91,10 +97,7 @@ you "fix" something that looks like a bug.
 
 ## What's intentionally not built yet
 
-No deleting a saved worksheet, and no grading/scoring - list, create, and
-edit exist today (see `TamilHomeworkFormPage.tsx`/`updateWorksheet`). Don't
-add deletion speculatively; if requested, extend `worksheetStorage.ts` with
-a `deleteWorksheet` that removes the `<uuid>.json` file via
-`handle.removeEntry`, and add UI for it following the same "redirect
-instead of guessing" and per-`DirectoryStatus` rendering conventions used
-by the existing pages.
+No grading/scoring - list, create, edit, and delete exist today (see
+`TamilHomeworkFormPage.tsx`/`updateWorksheet` and
+`TamilHomeworkListPage.tsx`/`deleteWorksheet`). Don't add grading
+speculatively.

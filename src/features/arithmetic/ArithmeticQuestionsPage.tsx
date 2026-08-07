@@ -76,7 +76,7 @@ function Worksheet({ selection }: { selection: ArithmeticSelection }) {
         <div>
           <p className="font-body text-sm font-semibold uppercase tracking-widest text-turmeric-deep">
             {operations.map((operation) => OPERATION_LABELS[operation]).join(' + ')} &middot;{' '}
-            {digits}-digit
+            {digits.map((digitCount) => `${digitCount}-digit`).join(' + ')}
           </p>
           <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
             50 questions to practice
@@ -98,7 +98,16 @@ function Worksheet({ selection }: { selection: ArithmeticSelection }) {
         </div>
       </div>
 
-      <ol className="grid list-none grid-cols-1 gap-x-8 gap-y-4 rounded-2xl border border-paper-line bg-white/70 p-6 shadow-card sm:grid-cols-2 sm:p-8 lg:grid-cols-3">
+      {/* print: overrides pin the layout to 2 columns and shrink row
+          spacing so all 50 questions fit on one printed A4/Letter page.
+          2 columns (not 3) so each item's operand text + answer box stays
+          on one line even at 4-digit x 4-digit - 3 columns left too little
+          width per item on A4 and most rows wrapped to two lines, nearly
+          doubling the total height. With 2 columns there's no wrapping, so
+          it comes down to fitting 25 rows in the vertical space - measured
+          against real A4/Letter content-box dimensions (not guessed), the
+          spacing below leaves a multi-cm margin on both paper sizes. */}
+      <ol className="grid list-none grid-cols-1 gap-x-8 gap-y-4 rounded-2xl border border-paper-line bg-white/70 p-6 shadow-card sm:grid-cols-2 sm:p-8 lg:grid-cols-3 print:!grid-cols-2 print:gap-y-0.5 print:p-2">
         {questions.map((question, index) => {
           const userAnswer = userAnswers[question.id] ?? '';
           const isCorrect = submitted && Number(userAnswer) === question.answer;
@@ -106,7 +115,7 @@ function Worksheet({ selection }: { selection: ArithmeticSelection }) {
           return (
             <li
               key={question.id}
-              className="flex items-baseline gap-2 border-b border-paper-line/70 pb-3 font-mono text-lg text-ink"
+              className="flex items-baseline gap-2 border-b border-paper-line/70 pb-3 font-mono text-lg text-ink print:pb-0.5 print:text-sm"
             >
               <span className="w-7 shrink-0 text-sm text-ink-soft">{index + 1}.</span>
               <span className="flex flex-1 flex-wrap items-baseline gap-2">
@@ -119,7 +128,7 @@ function Worksheet({ selection }: { selection: ArithmeticSelection }) {
                   value={userAnswer}
                   onChange={(event) => handleAnswerChange(question.id, event.target.value)}
                   aria-label={`Answer for question ${index + 1}`}
-                  className="w-20 rounded-md border border-paper-line bg-white px-2 py-1 font-mono text-lg text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-turmeric-deep"
+                  className="w-20 rounded-md border border-paper-line bg-white px-2 py-1 font-mono text-lg text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-turmeric-deep print:w-14 print:py-0.5 print:text-sm"
                 />
                 {submitted && (
                   <span

@@ -4,7 +4,6 @@ import { HomePage } from '@/features/home/HomePage';
 import { TamilHomeworkListPage } from '@/features/tamil-homework/TamilHomeworkListPage';
 import { TamilHomeworkFormPage } from '@/features/tamil-homework/TamilHomeworkFormPage';
 import { ArithmeticSetupPage } from '@/features/arithmetic/ArithmeticSetupPage';
-import { ArithmeticLearnPage } from '@/features/arithmetic/ArithmeticLearnPage';
 import { ArithmeticQuestionsPage } from '@/features/arithmetic/ArithmeticQuestionsPage';
 
 /**
@@ -20,7 +19,6 @@ export default function App() {
         <Route path="/tamil-homework/new" element={<TamilHomeworkFormPage />} />
         <Route path="/tamil-homework/edit" element={<TamilHomeworkFormPage />} />
         <Route path="/arithmetic" element={<ArithmeticSetupPage />} />
-        <Route path="/arithmetic/learn" element={<ArithmeticLearnPage />} />
         <Route path="/arithmetic/questions" element={<ArithmeticQuestionsPage />} />
       </Routes>
     </AppShell>

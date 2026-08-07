@@ -21,13 +21,10 @@ const DIGIT_OPTIONS: { value: DigitCount; sublabel: string }[] = [
 export function ArithmeticSetupPage() {
   const navigate = useNavigate();
   const [operations, setOperations] = useState<Operation[]>(['addition']);
-  const [digits, setDigits] = useState<DigitCount>(2);
+  const [digits, setDigits] = useState<DigitCount[]>([2]);
 
-  // Multiplication beyond 1 digit gets a worked-example lesson first - see
-  // ArithmeticLearnPage - whether it's the only operation chosen or part of
-  // a combo. Every other combination goes straight to the worksheet.
-  const needsLesson = operations.includes('multiplication') && digits > 1;
   const isCombo = operations.length > 1;
+  const isDigitCombo = digits.length > 1;
 
   function toggleOperation(op: Operation) {
     setOperations((current) =>
@@ -37,10 +34,18 @@ export function ArithmeticSetupPage() {
     );
   }
 
+  function toggleDigits(value: DigitCount) {
+    setDigits((current) =>
+      current.includes(value)
+        ? current.filter((selected) => selected !== value)
+        : [...current, value],
+    );
+  }
+
   function handleGenerate() {
-    if (operations.length === 0) return;
+    if (operations.length === 0 || digits.length === 0) return;
     const selection: ArithmeticSelection = { operations, digits };
-    navigate(needsLesson ? '/arithmetic/learn' : '/arithmetic/questions', { state: selection });
+    navigate('/arithmetic/questions', { state: selection });
   }
 
   return (
@@ -56,8 +61,8 @@ export function ArithmeticSetupPage() {
           Set up your worksheet
         </h1>
         <p className="mt-3 max-w-2xl text-lg text-ink-soft">
-          Choose one or more operations and a number size. We&apos;ll generate 50 questions to
-          practice - pick 2 or more operations to mix them into one worksheet.
+          Choose one or more operations and one or more number sizes. We&apos;ll generate 50
+          questions to practice - pick 2 or more of either to mix them into one worksheet.
         </p>
       </div>
 
@@ -80,23 +85,26 @@ export function ArithmeticSetupPage() {
       </fieldset>
 
       <fieldset className="flex flex-col gap-3">
-        <legend className="font-display text-xl font-semibold text-ink">Number size</legend>
-        <div role="radiogroup" className="flex flex-wrap gap-3">
+        <legend className="font-display text-xl font-semibold text-ink">
+          Number size{isDigitCombo ? ` (${digits.length} selected)` : ''}
+        </legend>
+        <div role="group" className="flex flex-wrap gap-3">
           {DIGIT_OPTIONS.map((option) => (
             <SelectableCard
               key={option.value}
+              role="checkbox"
               label={`${option.value}-digit`}
               sublabel={option.sublabel}
-              selected={digits === option.value}
-              onSelect={() => setDigits(option.value)}
+              selected={digits.includes(option.value)}
+              onSelect={() => toggleDigits(option.value)}
             />
           ))}
         </div>
       </fieldset>
 
       <div>
-        <Button onClick={handleGenerate} disabled={operations.length === 0}>
-          {needsLesson ? `Learn ${digits}-digit multiplication` : 'Generate 50 questions'}
+        <Button onClick={handleGenerate} disabled={operations.length === 0 || digits.length === 0}>
+          Generate 50 questions
         </Button>
       </div>
     </div>
