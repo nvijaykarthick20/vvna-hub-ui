@@ -10,7 +10,10 @@ you "fix" something that looks like a bug.
 - `types.ts` - `TamilWorksheet` / `TamilWorksheetInput` / `isTamilWorksheet`.
   The type guard is used when parsing worksheet JSON read back from disk -
   a file could be corrupt or foreign, so callers skip it rather than throw.
-- `fileSystemAccess.d.ts` - ambient augmentation for the parts of the File
+  `textRuns` and `textSize` remain optional on stored worksheets so legacy
+  JSON files load as normal, non-bold text; new inputs always include both.
+  `textRuns` stores only `{ text, bold }` values rather than arbitrary HTML.
+- `src/fileSystemAccess.d.ts` - shared ambient augmentation for the parts of the File
   System Access API that TypeScript's bundled `lib.dom.d.ts` doesn't
   include yet (`window.showDirectoryPicker`, `queryPermission` /
   `requestPermission` on `FileSystemHandle`, async iteration on
@@ -49,7 +52,7 @@ you "fix" something that looks like a bug.
   `.claude/context/ROADMAP.md`).
 - `useWorksheetsDirectory.ts` - resolves the persisted handle + its live
   permission into a `DirectoryStatus` (`'checking' | 'unsupported' |
-  'no-directory' | 'needs-permission' | 'ready' | 'error'`). Both pages
+'no-directory' | 'needs-permission' | 'ready' | 'error'`). Both pages
   mount this independently rather than sharing it via Context - see "Data
   flow" below.
 - `TamilHomeworkListPage.tsx` - route `/tamil-homework`. Renders a
@@ -76,6 +79,11 @@ you "fix" something that looks like a bug.
   the `no-print` form. This is the only place worksheets can be printed
   from - there's no print action on `TamilHomeworkListPage`, so printing
   always goes through the form (add or edit) rather than a read-only view.
+  The formatting toolbar applies bold only to the current text selection;
+  size still applies to the entire Text field. Formatting is saved as safe
+  text runs in the worksheet JSON and reused by the editor and print view.
+  Pasted and dropped content must remain plain text, and the content-editable
+  DOM must never be persisted or rendered as arbitrary HTML.
 
 ## Rules that are deliberate, not bugs
 

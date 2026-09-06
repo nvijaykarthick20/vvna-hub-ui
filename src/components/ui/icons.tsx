@@ -37,6 +37,28 @@ export function BookIcon({ className = defaultClassName }: IconProps) {
   );
 }
 
+export function PhotoStackIcon({ className = defaultClassName }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <rect x="6" y="4" width="14" height="14" rx="2" stroke="currentColor" strokeWidth="1.7" />
+      <path
+        d="m8.5 15 3.2-3.5 2.3 2.4 1.6-1.7L18 15"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="16.5" cy="8" r="1.2" fill="currentColor" />
+      <path
+        d="M4 7v11a2 2 0 0 0 2 2h11"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 export function SparkIcon({ className = defaultClassName }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">

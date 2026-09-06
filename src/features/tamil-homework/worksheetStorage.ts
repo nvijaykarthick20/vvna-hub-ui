@@ -53,6 +53,8 @@ export async function saveWorksheet(
     worksheetFor: input.worksheetFor,
     title: input.title,
     text: input.text,
+    textRuns: input.textRuns,
+    textSize: input.textSize,
     createdAt: now,
     updatedAt: now,
   };
@@ -78,6 +80,8 @@ export async function updateWorksheet(
     worksheetFor: input.worksheetFor,
     title: input.title,
     text: input.text,
+    textRuns: input.textRuns,
+    textSize: input.textSize,
     updatedAt: new Date().toISOString(),
   };
 

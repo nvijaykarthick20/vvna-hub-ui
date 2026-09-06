@@ -1,8 +1,8 @@
 # VVNA Hub
 
-A small home-practice hub. Phase 1 ships **Arithmetic Practice** (pick one
-or more operations and a number size, get a fresh 50-question worksheet) and
-a placeholder for **Tamil Homework**, coming in a later phase.
+A small home-practice and local-utility hub. It ships **Arithmetic Practice**,
+**Tamil Homework**, and a privacy-first **Duplicate Media Cleaner** for finding
+and removing duplicate photos and videos from a user-selected folder.
 
 Built with React 19, TypeScript, Vite 8, and Tailwind CSS v4.
 
@@ -57,22 +57,23 @@ npm run preview    # serves the dist/ build locally, to sanity-check it
 
 ## Available scripts
 
-| Script                | What it does                                          |
-| ---------------------- | ------------------------------------------------------ |
-| `npm run dev`          | Start the Vite dev server with hot reload              |
-| `npm run build`        | Type-check the whole project, then build to `dist/`   |
-| `npm run preview`      | Serve the `dist/` build locally                        |
-| `npm run lint`         | Run ESLint over the project                             |
-| `npm run lint:fix`     | Run ESLint and auto-fix what it can                     |
-| `npm run format`       | Format the project with Prettier                        |
-| `npm run format:check` | Check formatting without writing changes                |
-| `npm run typecheck`    | Type-check only, no build output                        |
-| `npm run test`         | Run the Vitest test suite once                          |
-| `npm run test:watch`   | Run Vitest in watch mode                                |
+| Script                 | What it does                                        |
+| ---------------------- | --------------------------------------------------- |
+| `npm run dev`          | Start the Vite dev server with hot reload           |
+| `npm run build`        | Type-check the whole project, then build to `dist/` |
+| `npm run preview`      | Serve the `dist/` build locally                     |
+| `npm run lint`         | Run ESLint over the project                         |
+| `npm run lint:fix`     | Run ESLint and auto-fix what it can                 |
+| `npm run format`       | Format the project with Prettier                    |
+| `npm run format:check` | Check formatting without writing changes            |
+| `npm run typecheck`    | Type-check only, no build output                    |
+| `npm run test`         | Run the Vitest test suite once                      |
+| `npm run test:watch`   | Run Vitest in watch mode                            |
 
 ## How it works
 
-**Home screen** - two tiles: *Arithmetic Practice* and *Tamil Homework*.
+**Home screen** - three tiles: _Arithmetic Practice_, _Tamil Homework_, and
+_Duplicate Media Cleaner_.
 
 **Tamil Homework**:
 
@@ -80,14 +81,15 @@ npm run preview    # serves the dist/ build locally, to sanity-check it
    app asks you to choose a folder on your computer to store them in - it
    remembers that folder for next time (via the File System Access API),
    though your browser may ask you to re-confirm access each session.
-2. **Add new work** opens a form with three fields - *Worksheet for*,
-   *Title*, and *Text*. Saving writes one JSON file per worksheet into the
-   chosen folder and returns to the list.
-3. Each worksheet in the list shows who it's for and when it was last
-   updated; expand it to read the full text.
-4. This only works in Chromium browsers (Chrome, Edge) - Firefox and
-   Safari don't support the File System Access API yet. Editing/deleting a
-   saved worksheet isn't built yet, only list + add.
+2. **Add new work** opens a form with _Worksheet for_, _Title_, and _Text_.
+   Tanglish typed in the Text field is converted to Tamil script. Selected
+   words can be bold, while the whole Text section can use Normal, Large, or
+   Extra Large type; those choices also apply when printing. Saving writes one
+   JSON file per worksheet into the chosen folder.
+3. Existing worksheets can be edited, printed, or deleted from the list/form
+   flow.
+4. This only works in Chromium browsers (Chrome, Edge) because it depends on
+   the File System Access API.
 
 **Arithmetic Practice**:
 
@@ -99,9 +101,9 @@ npm run preview    # serves the dist/ build locally, to sanity-check it
 3. Click **Generate 50 questions**. The app builds 50 questions split as
    evenly as possible across the operations you picked and shuffles them,
    entirely in your browser (nothing is sent to a server).
-4. On the worksheet, you can **Show/Hide answers**, generate a **New set**
-   without changing the setup, or **Print worksheet** (the print view hides
-   the buttons and header so it prints cleanly on paper).
+4. Enter every answer and submit to see correct/incorrect feedback and the
+   elapsed time. You can generate a **New set** without changing the setup or
+   **Print worksheet** with an ink-friendly layout.
 
 A couple of deliberate rules worth knowing:
 
@@ -114,6 +116,26 @@ A couple of deliberate rules worth knowing:
 
 See `src/features/arithmetic/CLAUDE.md` for the full rationale if you're
 extending this logic.
+
+**Duplicate Media Cleaner**:
+
+1. Choose exact matching (identical file bytes, safest) or strict visual
+   matching (resized/recompressed copies), then choose a folder.
+2. The app recursively scans supported photos and videos in that folder and
+   its subfolders. Processing is local; media, fingerprints, and filenames are
+   never uploaded.
+3. Duplicate groups show photo previews or playable video previews, relative
+   paths, sizes, dimensions, and video duration when available. Bulk selection
+   keeps one suggested original in every group, and the keeper can be changed
+   manually.
+4. Deletion requires an explicit confirmation. Each file's metadata and full
+   byte content are checked again before deletion, and it is left untouched if
+   it changed. Browser deletion can bypass the operating-system recycle bin,
+   so treat it as permanent.
+5. Chrome or Edge is required. Photo formats are JPEG, PNG, WebP, GIF, BMP, and
+   AVIF. Video extensions include MP4, M4V, MOV, WebM, OGV, AVI, MKV, WMV,
+   MPEG/MPG, and 3GP; exact mode supports their bytes, while visual mode depends
+   on whether the browser can decode the video's codec.
 
 ## Project structure
 
@@ -136,6 +158,7 @@ vvna-hub-ui/
     ├── main.tsx                  # App bootstrap (StrictMode, router, CSS)
     ├── App.tsx                   # Route table (thin, on purpose)
     ├── index.css                 # Tailwind import + design tokens (@theme)
+    ├── fileSystemAccess.d.ts     # Shared browser file-access declarations
     ├── components/
     │   ├── CLAUDE.md             # Rules for this folder
     │   ├── layout/AppShell.tsx   # Header/footer page frame
@@ -149,28 +172,34 @@ vvna-hub-ui/
         │   ├── worksheetStorage.ts
         │   ├── useWorksheetsDirectory.ts
         │   ├── TamilHomeworkListPage.tsx
-        │   └── TamilHomeworkNewPage.tsx
-        └── arithmetic/
-            ├── CLAUDE.md              # Rules for question-generation logic
+        │   └── TamilHomeworkFormPage.tsx
+        ├── arithmetic/
+        │   ├── CLAUDE.md              # Rules for question-generation logic
+        │   ├── types.ts
+        │   ├── generateQuestions.ts
+        │   ├── generateQuestions.test.ts
+        │   ├── ArithmeticSetupPage.tsx
+        │   └── ArithmeticQuestionsPage.tsx
+        └── duplicate-media/
+            ├── CLAUDE.md              # Matching and deletion safety rules
             ├── types.ts
-            ├── generateQuestions.ts
-            ├── generateQuestions.test.ts
-            ├── ArithmeticSetupPage.tsx
-            └── ArithmeticQuestionsPage.tsx
+            ├── duplicateMedia.ts      # Scan, match, select, and delete logic
+            ├── duplicateMedia.test.ts
+            └── DuplicateMediaPage.tsx
 ```
 
 ## Tech stack
 
-| Package             | Version (as configured) | Notes                                                          |
-| -------------------- | ------------------------ | ---------------------------------------------------------------- |
-| [React](https://react.dev)              | ^19.2.7  | UI library                                                     |
-| [TypeScript](https://www.typescriptlang.org) | ^5.9.3   | Type checking (`tsc -b`)                                       |
-| [Vite](https://vite.dev)                | ^8.1.4   | Dev server + build tool (Rolldown-based bundler)               |
-| [Tailwind CSS](https://tailwindcss.com) | ^4.3.2   | Utility CSS, configured via `@theme` in `src/index.css`        |
-| [react-router-dom](https://reactrouter.com) | ^7.18.1  | Client-side routing                                            |
-| [Vitest](https://vitest.dev)            | ^3.0.4   | Unit tests                                                     |
-| [ESLint](https://eslint.org)            | ^9.19.0  | Linting, flat config (`eslint.config.js`)                      |
-| [Prettier](https://prettier.io)         | ^3.4.2   | Formatting                                                     |
+| Package                                      | Version (as configured) | Notes                                                   |
+| -------------------------------------------- | ----------------------- | ------------------------------------------------------- |
+| [React](https://react.dev)                   | ^19.2.7                 | UI library                                              |
+| [TypeScript](https://www.typescriptlang.org) | ^5.9.3                  | Type checking (`tsc -b`)                                |
+| [Vite](https://vite.dev)                     | ^8.1.4                  | Dev server + build tool (Rolldown-based bundler)        |
+| [Tailwind CSS](https://tailwindcss.com)      | ^4.3.2                  | Utility CSS, configured via `@theme` in `src/index.css` |
+| [react-router-dom](https://reactrouter.com)  | ^7.18.1                 | Client-side routing                                     |
+| [Vitest](https://vitest.dev)                 | ^3.0.4                  | Unit tests                                              |
+| [ESLint](https://eslint.org)                 | ^9.19.0                 | Linting, flat config (`eslint.config.js`)               |
+| [Prettier](https://prettier.io)              | ^3.4.2                  | Formatting                                              |
 
 Exact installed versions are locked in `package-lock.json` after your first
 `npm install` - the table above reflects what `package.json` requests.
@@ -187,7 +216,8 @@ in it efficiently:
   split out instead of bloating the root file.
 - **Nested `CLAUDE.md` files** (`src/components/CLAUDE.md`,
   `src/features/arithmetic/CLAUDE.md`,
-  `src/features/tamil-homework/CLAUDE.md`) hold rules specific to that
+  `src/features/tamil-homework/CLAUDE.md`,
+  `src/features/duplicate-media/CLAUDE.md`) hold rules specific to that
   folder, like why division is generated the way it is, or how the File
   System Access permission flow behaves.
 
@@ -196,9 +226,9 @@ using a different assistant, point it at `CLAUDE.md` first.
 
 ## Roadmap
 
-This codebase ships Arithmetic Practice and Tamil Homework (list + add).
-What's planned after that will be scoped separately - see
-`.claude/context/ROADMAP.md` for the current in-scope/out-of-scope list.
+This codebase ships Arithmetic Practice, Tamil Homework, and photo/video
+duplicate cleaning. See `.claude/context/ROADMAP.md` for the current
+in-scope/out-of-scope list.
 
 ## License
 

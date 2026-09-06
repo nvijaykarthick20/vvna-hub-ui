@@ -5,6 +5,7 @@ import { TamilHomeworkListPage } from '@/features/tamil-homework/TamilHomeworkLi
 import { TamilHomeworkFormPage } from '@/features/tamil-homework/TamilHomeworkFormPage';
 import { ArithmeticSetupPage } from '@/features/arithmetic/ArithmeticSetupPage';
 import { ArithmeticQuestionsPage } from '@/features/arithmetic/ArithmeticQuestionsPage';
+import { DuplicateMediaPage } from '@/features/duplicate-media/DuplicateMediaPage';
 
 /**
  * Route map for the whole app. Keep this file thin - it should only wire
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/tamil-homework/edit" element={<TamilHomeworkFormPage />} />
         <Route path="/arithmetic" element={<ArithmeticSetupPage />} />
         <Route path="/arithmetic/questions" element={<ArithmeticQuestionsPage />} />
+        <Route path="/duplicate-media" element={<DuplicateMediaPage />} />
       </Routes>
     </AppShell>
   );

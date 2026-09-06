@@ -8,6 +8,7 @@ interface FeatureCardProps {
   description: string;
   icon: ReactNode;
   status: 'available' | 'coming-soon';
+  actionLabel?: string;
 }
 
 /**
@@ -22,6 +23,7 @@ export function FeatureCard({
   description,
   icon,
   status,
+  actionLabel = 'Start practicing',
 }: FeatureCardProps) {
   const isComingSoon = status === 'coming-soon';
 
@@ -52,7 +54,7 @@ export function FeatureCard({
       <p className="text-ink-soft">{description}</p>
 
       <span className="mt-auto inline-flex items-center gap-1 font-semibold text-chalkboard">
-        {isComingSoon ? 'See status' : 'Start practicing'}
+        {isComingSoon ? 'See status' : actionLabel}
         <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">
           &rarr;
         </span>

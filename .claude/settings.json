@@ -43,7 +43,10 @@
       "Bash(find ~/.claude -maxdepth 4 -iname \"SKILL.md\" 2>/dev/null | head -20)",
       "Read(//c/Users/vijay/.claude/**)",
       "Bash(mkdir -p ~/.claude/skills/commit-push-pr && echo OK)",
-      "Edit(~/.claude/skills/commit-push-pr/**)"
+      "Edit(~/.claude/skills/commit-push-pr/**)",
+      "Bash(git commit -m ' *)",
+      "Bash(claude mcp *)",
+      "Bash(node -e ' *)"
     ],
     "additionalDirectories": [
       "C:\\Users\\vijay\\.claude\\skills"

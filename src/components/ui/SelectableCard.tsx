@@ -3,6 +3,7 @@ interface SelectableCardProps {
   sublabel?: string;
   selected: boolean;
   onSelect: () => void;
+  disabled?: boolean;
   /** `radio` (default) for single-select groups (e.g. digit size); `checkbox`
    * for multi-select groups (e.g. combo operation picker). Controls the
    * exposed a11y role only - selection state is still fully owned by the
@@ -19,6 +20,7 @@ export function SelectableCard({
   sublabel,
   selected,
   onSelect,
+  disabled = false,
   role = 'radio',
 }: SelectableCardProps) {
   return (
@@ -27,7 +29,8 @@ export function SelectableCard({
       role={role}
       aria-checked={selected}
       onClick={onSelect}
-      className={`flex min-w-[6.5rem] flex-1 flex-col items-center gap-1 rounded-xl border-2 px-4 py-4 text-center transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-turmeric-deep ${
+      disabled={disabled}
+      className={`flex min-w-[6.5rem] flex-1 flex-col items-center gap-1 rounded-xl border-2 px-4 py-4 text-center transition-colors disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-turmeric-deep ${
         selected
           ? 'border-chalkboard bg-chalkboard text-chalk'
           : 'border-paper-line bg-white/70 text-ink hover:border-chalkboard/50'

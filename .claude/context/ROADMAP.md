@@ -2,10 +2,11 @@
 
 ## Phase 1 (this codebase, done)
 
-- Home screen with two tiles: Arithmetic Practice and Tamil Homework.
+- Home screen with Arithmetic Practice and Tamil Homework tiles.
 - Arithmetic Practice: pick an operation (addition/subtraction/
   multiplication/division) and a number size (1-4 digits), generate 50
-  questions, show/hide answers, regenerate a new set, print the worksheet.
+  questions, enter and submit answers, see correctness and elapsed time,
+  regenerate a new set, and print the worksheet.
 
 ## Phase 2 (this codebase, done)
 
@@ -24,26 +25,37 @@
   `@piraisoodan/tanglish` - see
   `src/features/tamil-homework/CLAUDE.md`/`tanglishInput.ts`. Only that
   field does this; "Worksheet for"/"Title" stay plain text.
+- Selected Text-field ranges can be toggled bold, while Normal, Large, or Extra
+  Large size applies to the whole field. Formatting is stored as safe text
+  runs with the worksheet and used by both the editor and print output.
 - Tamil Homework worksheets can be printed (Letter/A4) from a "Print"
   button on the add/edit form (`TamilHomeworkFormPage.tsx`) - it prints
   whatever is currently typed, not a separate read-only view. There's no
   print action on the list screen.
-- **Deleting a worksheet is not built yet** - list, create, and edit exist.
-  Don't build deletion out speculatively; extend `worksheetStorage.ts` per
-  the "What's intentionally not built yet" section of that folder's
-  `CLAUDE.md` when asked.
+- Worksheets can be deleted from the list after an explicit confirmation.
+
+## Phase 3 (this codebase, done)
+
+- Duplicate Media Cleaner: recursively scan a user-selected folder for exact
+  photo/video copies using bounded-memory SHA-256 fingerprints plus byte
+  verification, or strict visual copies using photo and sampled-video-frame
+  fingerprints.
+- Review duplicate groups with thumbnails, paths, sizes, and dimensions;
+  select suggested duplicate copies while keeping one file per group.
+- Delete selected copies only after confirmation, with fresh
+  size/modified/content-hash checks and explicit partial-failure reporting.
+  Processing stays on-device.
 
 ## Explicitly not in scope (don't add without being asked)
 
 - No accounts, login, or per-user history/progress tracking.
-- No backend/database. Arithmetic worksheets stay in-memory and reset on
+- No backend/database. Arithmetic worksheets and duplicate scan results stay in-memory and reset on
   refresh (except the operation/digit choice, which travels via router
   state for one hop; see ARCHITECTURE.md). Tamil worksheets are the one
   exception to "no persistence" in this app - they're saved as real files
   via the File System Access API, not a database/server.
-- No scoring, timers, or "check my answers against what I typed" grading -
-  the arithmetic worksheet is print/practice-only right now (answers can
-  be revealed, not graded), and Tamil worksheets aren't graded either.
+- No saved scoring/history or grading for Tamil worksheets. Arithmetic answer
+  feedback and timing exist only for the current in-memory worksheet.
 - No negative-number arithmetic, decimals, or fractions.
 - No settings/preferences persistence (e.g. remembering the last operation
   chosen).

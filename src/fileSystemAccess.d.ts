@@ -1,9 +1,8 @@
 /**
  * TypeScript's bundled lib.dom.d.ts has FileSystemDirectoryHandle /
- * FileSystemFileHandle / createWritable, but not the pieces below - they're
- * part of the File System Access API spec that hasn't landed in the
- * standard DOM lib yet. Declared locally instead of pulling in a
- * @types/wicg-file-system-access dependency for a handful of members.
+ * FileSystemFileHandle / createWritable, but not every File System Access
+ * API member used by the Tamil Homework and Duplicate Media features.
+ * These ambient declarations are shared rather than owned by either feature.
  */
 
 type FileSystemPermissionMode = 'read' | 'readwrite';

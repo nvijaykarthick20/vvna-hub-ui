@@ -1,5 +1,5 @@
 import { FeatureCard } from '@/components/home/FeatureCard';
-import { CalculatorIcon, BookIcon } from '@/components/ui/icons';
+import { CalculatorIcon, BookIcon, PhotoStackIcon } from '@/components/ui/icons';
 
 /**
  * Landing screen: pick a subject to practice. Add new subjects here as they
@@ -16,12 +16,12 @@ export function HomePage() {
           What are we studying today?
         </h1>
         <p className="mt-4 text-lg text-ink-soft">
-          Pick a subject below. Arithmetic Practice builds a fresh 50-question worksheet every
-          time - choose the operation and the number size, and go.
+          Pick a practice activity, or use the local media cleaner to safely review duplicate photos
+          and videos before removing extra copies.
         </p>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <FeatureCard
           to="/arithmetic"
           title="Arithmetic Practice"
@@ -36,6 +36,14 @@ export function HomePage() {
           description="Reading, writing, and grammar practice for Tamil homework."
           icon={<BookIcon />}
           status="available"
+        />
+        <FeatureCard
+          to="/duplicate-media"
+          title="Duplicate Media Cleaner"
+          description="Scan a folder for duplicate photos and videos, compare the matches, and remove extra copies while keeping an original."
+          icon={<PhotoStackIcon />}
+          status="available"
+          actionLabel="Find duplicates"
         />
       </div>
     </div>

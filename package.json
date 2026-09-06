@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "VVNA Hub - a home-practice hub for kids. Ships Arithmetic Practice (Addition, Subtraction, Multiplication, Division with 50 generated questions) and Tamil Homework (list/add worksheets saved as files via the File System Access API).",
+  "description": "VVNA Hub - home practice for arithmetic and Tamil, plus a local duplicate-media cleaner with exact and visual matching.",
   "engines": {
     "node": ">=20.19.0"
   },
